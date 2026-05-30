@@ -166,22 +166,38 @@ async function connect() {
 
     const data = await res.json();
 
-    if (data.result && data.result.success) {
+    // SUCCESS
+    if (data.result && data.result.success === true) {
       btn.textContent = '✅ CONNECTED!';
       btn.style.background = '#00ff88';
+      btn.style.color = '#000';
       status.className = 'status success';
       status.textContent = '🎉 Handshake done with Rtr. Kiran!';
       xp.style.display = 'block';
       xpLabel.style.display = 'block';
       xp.textContent = '+' + (data.result.totalEarned || 10);
       note.style.display = 'none';
-    } else if (data.error) {
-      btn.textContent = '⚠️ ALREADY CONNECTED';
+
+    // ALREADY CONNECTED
+    } else if (data.error && data.error.status === 'ALREADY_EXISTS') {
+      btn.textContent = '✅ ALREADY CONNECTED!';
       btn.style.background = '#ffc107';
       btn.style.color = '#000';
-      btn.disabled = false;
+      btn.disabled = true;
       status.className = 'status warning';
-      status.textContent = 'You are already connected with Kiran!';
+      status.textContent = 'You and Kiran are already connected! 🤝';
+      note.style.display = 'none';
+
+    // NOT LOGGED IN
+    } else if (data.error && data.error.status === 'UNAUTHENTICATED') {
+      btn.textContent = '❌ LOGIN FIRST';
+      btn.style.background = '#ff4444';
+      btn.style.color = '#fff';
+      btn.disabled = false;
+      status.className = 'status error';
+      status.textContent = 'Please login to Ananta Huddle first!';
+      note.innerHTML = '👉 <a href="https://huddle.rsamdio.org" target="_blank" style="color:#00ff88">Login to Ananta Huddle</a> · then come back and tap!';
+
     } else {
       throw new Error('unexpected');
     }
